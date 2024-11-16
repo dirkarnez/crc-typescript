@@ -76,3 +76,44 @@ const data = Buffer.from("Hello, world!");
 const crcValue = crc32.compute(data);
 console.log(`CRC-32: ${crcValue.toString(16).toUpperCase()}`);
 ```
+
+```typescript
+class CRC32 {
+    private table: number[];
+
+    constructor() {
+        this.table = this.generateTable();
+    }
+
+    private generateTable(): number[] {
+        const table = new Array(256);
+        const polynomial = 0xEDB88320;
+
+        for (let i = 0; i < 256; i++) {
+            let crc = i;
+            for (let j = 8; j > 0; j--) {
+                crc = (crc & 1) ? (crc >>> 1) ^ polynomial : (crc >>> 1);
+            }
+            table[i] = crc >>> 0; // Ensure unsigned
+        }
+        return table;
+    }
+
+    public compute(data: Buffer): number {
+        let crc = 0xFFFFFFFF;
+
+        for (let byte of data) {
+            const index = (crc ^ byte) & 0xFF;
+            crc = (crc >>> 8) ^ this.table[index];
+        }
+
+        return crc ^ 0xFFFFFFFF; // Final XOR
+    }
+}
+
+// Example usage
+const crc32 = new CRC32();
+const data = Buffer.from("Hello, world!");
+const crcValue = crc32.compute(data);
+console.log(`CRC-32: ${crcValue.toString(16).toUpperCase()}`);
+```
