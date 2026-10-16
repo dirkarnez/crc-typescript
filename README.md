@@ -143,3 +143,19 @@ public compute(data: Buffer): number {
     return crc ^ 0xFFFFFFFF; // Final XOR
 }
 ```
+```
+const CRC_TABLE=Uint32Array.from({length:256},(_,i)=>{let c=i;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;return c>>>0;});
+function crc32(bytes){let c=0xffffffff;for(const b of bytes)c=CRC_TABLE[(c^b)&255]^(c>>>8);return (c^0xffffffff)>>>0;}
+
+
+// 將字串轉為 UTF-8 的字節陣列
+const encoder = new TextEncoder();
+const data = encoder.encode("Hello World"); // [72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100]
+
+// 計算 CRC-32
+const checksum = crc32(data);
+
+console.log(checksum);             // 十進制輸出：1243066710
+console.log(checksum.toString(16));// 十六進制輸出："4a17b156"
+
+```
